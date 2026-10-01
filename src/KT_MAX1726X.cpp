@@ -12,6 +12,7 @@
 KT_MAX1726X::KT_MAX1726X(TwoWire *wire){
   _wire = wire;
   _debugPort = nullptr;
+  _rSense = 0.010f;
 }
 
 uint16_t KT_MAX1726X::_readRegister(uint8_t reg) {
@@ -54,4 +55,65 @@ uint16_t KT_MAX1726X::_readReg(uint8_t reg, uint16_t mask, int offset){
   uint16_t regVal = _readRegister(reg);
   regVal &= mask;
   return regVal >> offset;
+}
+
+bool KT_MAX1726X::isConnected() {
+  _wire->beginTransmission(KT_MAX1726X_ADDR);
+  return (_wire->endTransmission() == 0);
+}
+
+bool KT_MAX1726X::begin(uint16_t designCap_mAh, float rSense, uint16_t iChgTerm_mA, TwoWire *wire){
+
+  if (wire != nullptr) _wire = wire;
+
+  if(!isConnected()){
+
+    if (_debugPort != nullptr) _debugPort->println("MAX1726X is not connected!");
+    return false;
+  }
+
+  _rSense = rSense;
+
+  uint16_t por = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_POR_MASK, 1);
+
+  if(por == 1){
+
+    while(_readReg(KT_MAX1726X_REGISTER_FSTAT, KT_MAX1726X_DNR_MASK, 0) == 1){
+        delay(1);
+    }
+
+    _writeRegister(KT_MAX1726X_REGISTER_DESIGN_CAP, (uint16_t)(designCap_mAh * rSense * 200.0f));
+    _writeRegister(KT_MAX1726X_REGISTER_ICHG_TERM, (uint16_t)iChgTerm_mA * rSense * 640);
+
+    _updateReg(1, KT_MAX1726X_REGISTER_MODEL_CFG, KT_MAX1726X_REFRESH_MASK, 15);
+
+    while(_readReg(KT_MAX1726X_REGISTER_MODEL_CFG, KT_MAX1726X_REFRESH_MASK, 15) == 1){
+        delay(1);
+    }
+
+    _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_POR_MASK, 1);
+    
+  }
+
+  return true;
+}
+
+float KT_MAX1726X::getVoltage(){
+    uint16_t vcell = _readRegister(KT_MAX1726X_REGISTER_VCELL);
+    return vcell * 0.000078125f;
+}
+
+float KT_MAX1726X::getAverageVoltage(){
+    uint16_t avgVcell = _readRegister(KT_MAX1726X_REGISTER_VCELL_AVG);
+    return avgVcell * 0.000078125f;
+}
+
+float KT_MAX1726X::getMinVoltage(){
+    uint16_t minVcell = _readReg(KT_MAX1726X_REGISTER_VCELL_MIN_MAX, 0xFF, 0);
+    return minVcell * 0.02f;
+}
+
+float KT_MAX1726X::getMaxVoltage(){
+    uint16_t maxVcell = _readReg(KT_MAX1726X_REGISTER_VCELL_MIN_MAX, 0xFF00, 8);
+    return maxVcell * 0.02f;
 }
