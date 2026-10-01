@@ -33,6 +33,9 @@
 #define KT_MAX1726X_REGISTER_CAPACITY 0x05
 #define KT_MAX1726X_REGISTER_CAPACITY_DESIGN 0x18
 #define KT_MAX1726X_REGISTER_CAPACITY_FULL 0x10
+#define KT_MAX1726X_REGISTER_PERCENTAGE 0x06
+#define KT_MAX1726X_REGISTER_TTE 0x11
+#define KT_MAX1726X_REGISTER_TTF 0x20
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -72,6 +75,9 @@ class KT_MAX1726X
     float getCapacity();
     float getDesignCapacity();
     float getFullCapacity();
+    float getPercentage();
+    float getTimeToEmpty();
+    float getTimeToFull();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }

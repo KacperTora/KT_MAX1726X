@@ -179,15 +179,30 @@ float KT_MAX1726X::getDieTemp(){
 
 float KT_MAX1726X::getCapacity(){
   uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_CAPACITY);
-  return capacity * (0.005 / _rSense);
+  return capacity * (0.005f / _rSense);
 }
 
 float KT_MAX1726X::getDesignCapacity(){
   uint16_t designCapacity = _readRegister(KT_MAX1726X_REGISTER_CAPACITY_DESIGN);
-  return designCapacity * (0.005 / _rSense);
+  return designCapacity * (0.005f / _rSense);
 }
 
 float KT_MAX1726X::getFullCapacity(){
   uint16_t fullCapacity = _readRegister(KT_MAX1726X_REGISTER_CAPACITY_FULL);
-  return fullCapacity * (0.005 / _rSense);
+  return fullCapacity * (0.005f / _rSense);
+}
+
+float KT_MAX1726X::getPercentage(){
+  uint16_t percentage = _readRegister(KT_MAX1726X_REGISTER_PERCENTAGE);
+  return percentage / 256.0f;
+}
+
+float KT_MAX1726X::getTimeToEmpty(){
+  uint16_t tte = _readRegister(KT_MAX1726X_REGISTER_TTE);
+  return tte * 5.625f;
+}
+
+float KT_MAX1726X::getTimeToFull(){
+  uint16_t ttf = _readRegister(KT_MAX1726X_REGISTER_TTF);
+  return ttf * 5.625f;
 }
