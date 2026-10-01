@@ -176,3 +176,18 @@ float KT_MAX1726X::getDieTemp(){
   int16_t dieTemp = (int16_t)_readRegister(KT_MAX1726X_REGISTER_TEMP_DIE);
   return dieTemp / 256.0f;
 }
+
+float KT_MAX1726X::getCapacity(){
+  uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_CAPACITY);
+  return capacity * (0.005 / _rSense);
+}
+
+float KT_MAX1726X::getDesignCapacity(){
+  uint16_t designCapacity = _readRegister(KT_MAX1726X_REGISTER_CAPACITY_DESIGN);
+  return designCapacity * (0.005 / _rSense);
+}
+
+float KT_MAX1726X::getFullCapacity(){
+  uint16_t fullCapacity = _readRegister(KT_MAX1726X_REGISTER_CAPACITY_FULL);
+  return fullCapacity * (0.005 / _rSense);
+}

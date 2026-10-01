@@ -30,6 +30,9 @@
 #define KT_MAX1726X_REGISTER_TEMP_AVG 0x16
 #define KT_MAX1726X_REGISTER_TEMP_MIN_MAX 0x1A
 #define KT_MAX1726X_REGISTER_TEMP_DIE 0x34
+#define KT_MAX1726X_REGISTER_CAPACITY 0x05
+#define KT_MAX1726X_REGISTER_CAPACITY_DESIGN 0x18
+#define KT_MAX1726X_REGISTER_CAPACITY_FULL 0x10
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -66,6 +69,9 @@ class KT_MAX1726X
     float getMaxTemp();
     float getDieTemp();
     bool resetMinMaxTemp();
+    float getCapacity();
+    float getDesignCapacity();
+    float getFullCapacity();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
