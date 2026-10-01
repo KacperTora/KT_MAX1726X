@@ -78,16 +78,26 @@ bool KT_MAX1726X::begin(uint16_t designCap_mAh, float rSense, uint16_t iChgTerm_
 
   if(por == 1){
 
+    uint32_t timeout = millis() + 250;
     while(_readReg(KT_MAX1726X_REGISTER_FSTAT, KT_MAX1726X_DNR_MASK, 0) == 1){
+        if (millis() > timeout) {
+            if (_debugPort != nullptr) _debugPort->println("Timeout DNR.");
+            return false;
+        }
         delay(1);
     }
 
     _writeRegister(KT_MAX1726X_REGISTER_DESIGN_CAP, (uint16_t)(designCap_mAh * rSense * 200.0f));
-    _writeRegister(KT_MAX1726X_REGISTER_ICHG_TERM, (uint16_t)iChgTerm_mA * rSense * 640);
+    _writeRegister(KT_MAX1726X_REGISTER_ICHG_TERM, (uint16_t)(iChgTerm_mA * rSense * 640));
 
     _updateReg(1, KT_MAX1726X_REGISTER_MODEL_CFG, KT_MAX1726X_REFRESH_MASK, 15);
 
+    timeout = millis() + 250;
     while(_readReg(KT_MAX1726X_REGISTER_MODEL_CFG, KT_MAX1726X_REFRESH_MASK, 15) == 1){
+        if (millis() > timeout) {
+            if (_debugPort != nullptr) _debugPort->println("Timeout refresh");
+            return false;
+        }
         delay(1);
     }
 
@@ -138,7 +148,7 @@ float KT_MAX1726X::getMinCurrent(){
 }
 
 float KT_MAX1726X::getMaxCurrent(){
-    int8_t maxCurrent = (int8_t)_readReg(KT_MAX1726X_REGISTER_CURRENT_MIN_MAX, 0xFF00, 0);
+    int8_t maxCurrent = (int8_t)_readReg(KT_MAX1726X_REGISTER_CURRENT_MIN_MAX, 0xFF00, 8);
     return (maxCurrent * 0.4f) / _rSense;
 }
 
@@ -147,6 +157,7 @@ bool KT_MAX1726X::resetMinMaxCurrent() {
 }
 
 bool KT_MAX1726X::setTemperatureMeasurementMode(kt_max1726x_temp_mode mode){
+    _updateReg(mode, KT_MAX1726X_REGISTER_CONFIG, KT_MAX1726X_ETHRM_MASK, 4);
     return _updateReg(mode, KT_MAX1726X_REGISTER_CONFIG, KT_MAX1726X_TSEL_MASK, 15);
 }
 
@@ -165,7 +176,7 @@ float KT_MAX1726X::getMinTemp(){
 }
 
 float KT_MAX1726X::getMaxTemp(){
-    return (int8_t)_readReg(KT_MAX1726X_REGISTER_TEMP_MIN_MAX, 0xFF00, 0);
+    return (int8_t)_readReg(KT_MAX1726X_REGISTER_TEMP_MIN_MAX, 0xFF00, 8);
 }
 
 bool KT_MAX1726X::resetMinMaxTemp() {
@@ -205,4 +216,19 @@ float KT_MAX1726X::getTimeToEmpty(){
 float KT_MAX1726X::getTimeToFull(){
   uint16_t ttf = _readRegister(KT_MAX1726X_REGISTER_TTF);
   return ttf * 5.625f;
+}
+
+float KT_MAX1726X::getCycles(){
+  uint16_t cycles = _readRegister(KT_MAX1726X_REGISTER_CYCLES);
+  return cycles / 100.0f;
+}
+
+float KT_MAX1726X::getPower(){
+  uint16_t power = _readRegister(KT_MAX1726X_REGISTER_POWER);
+  return power * (0.008f / _rSense);
+}
+
+float KT_MAX1726X::getAveragePower(){
+  uint16_t avgPower = _readRegister(KT_MAX1726X_REGISTER_POWER_AVG);
+  return avgPower * (0.008f / _rSense);
 }

@@ -36,11 +36,15 @@
 #define KT_MAX1726X_REGISTER_PERCENTAGE 0x06
 #define KT_MAX1726X_REGISTER_TTE 0x11
 #define KT_MAX1726X_REGISTER_TTF 0x20
+#define KT_MAX1726X_REGISTER_CYCLES 0x17
+#define KT_MAX1726X_REGISTER_POWER 0xB1
+#define KT_MAX1726X_REGISTER_POWER_AVG 0xB3
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
 #define KT_MAX1726X_REFRESH_MASK 0x8000
 #define KT_MAX1726X_TSEL_MASK 0x8000
+#define KT_MAX1726X_ETHRM_MASK 0x16
 
 enum kt_max1726x_temp_mode {
     KT_MAX1726X_TEMP_MODE_DIE = 0,
@@ -78,6 +82,9 @@ class KT_MAX1726X
     float getPercentage();
     float getTimeToEmpty();
     float getTimeToFull();
+    float getCycles();
+    float getPower();
+    float getAveragePower();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
