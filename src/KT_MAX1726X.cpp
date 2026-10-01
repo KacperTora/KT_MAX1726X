@@ -109,11 +109,39 @@ float KT_MAX1726X::getAverageVoltage(){
 }
 
 float KT_MAX1726X::getMinVoltage(){
-    uint16_t minVcell = _readReg(KT_MAX1726X_REGISTER_VCELL_MIN_MAX, 0xFF, 0);
+    uint16_t minVcell = _readReg(KT_MAX1726X_REGISTER_VCELL_MIN_MAX, 0x00FF, 0);
     return minVcell * 0.02f;
 }
 
 float KT_MAX1726X::getMaxVoltage(){
     uint16_t maxVcell = _readReg(KT_MAX1726X_REGISTER_VCELL_MIN_MAX, 0xFF00, 8);
     return maxVcell * 0.02f;
+}
+
+bool KT_MAX1726X::resetMinMaxVoltage() {
+    return _writeRegister(KT_MAX1726X_REGISTER_VCELL_MIN_MAX, 0x00FF);
+}
+
+float KT_MAX1726X::getCurrent() {
+  int16_t current = (int16_t)_readRegister(KT_MAX1726X_REGISTER_CURRENT);
+  return (current * 0.0015625f) / _rSense;
+}
+
+float KT_MAX1726X::getAverageCurrent(){
+  int16_t avgCurrent = (int16_t)_readRegister(KT_MAX1726X_REGISTER_CURRENT_AVG);
+  return (avgCurrent * 0.0015625f) / _rSense;
+}
+
+float KT_MAX1726X::getMinCurrent(){
+    int8_t minCurrent = (int8_t)_readReg(KT_MAX1726X_REGISTER_CURRENT_MIN_MAX, 0x00FF, 0);
+    return (minCurrent * 0.4f) / _rSense;
+}
+
+float KT_MAX1726X::getMaxCurrent(){
+    int8_t maxCurrent = (int8_t)_readReg(KT_MAX1726X_REGISTER_CURRENT_MIN_MAX, 0xFF00, 0);
+    return (maxCurrent * 0.4f) / _rSense;
+}
+
+bool KT_MAX1726X::resetMinMaxCurrent() {
+    return _writeRegister(KT_MAX1726X_REGISTER_CURRENT_MIN_MAX, 0x807F);
 }

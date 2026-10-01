@@ -22,6 +22,9 @@
 #define KT_MAX1726X_REGISTER_VCELL 0x09
 #define KT_MAX1726X_REGISTER_VCELL_AVG 0x19
 #define KT_MAX1726X_REGISTER_VCELL_MIN_MAX 0x1B
+#define KT_MAX1726X_REGISTER_CURRENT 0x0A
+#define KT_MAX1726X_REGISTER_CURRENT_AVG 0x0B
+#define KT_MAX1726X_REGISTER_CURRENT_MIN_MAX 0x1C
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -39,6 +42,12 @@ class KT_MAX1726X
     float getAverageVoltage();
     float getMinVoltage();
     float getMaxVoltage();
+    bool resetMinMaxVoltage();
+    float getCurrent();
+    float getAverageCurrent();
+    float getMinCurrent();
+    float getMaxCurrent();
+    bool resetMinMaxCurrent();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
