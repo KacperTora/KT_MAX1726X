@@ -224,11 +224,19 @@ float KT_MAX1726X::getCycles(){
 }
 
 float KT_MAX1726X::getPower(){
-  uint16_t power = _readRegister(KT_MAX1726X_REGISTER_POWER);
+  int16_t power = (int16_t)_readRegister(KT_MAX1726X_REGISTER_POWER);
   return power * (0.008f / _rSense);
 }
 
 float KT_MAX1726X::getAveragePower(){
-  uint16_t avgPower = _readRegister(KT_MAX1726X_REGISTER_POWER_AVG);
-  return avgPower * (0.008f / _rSense);
+  int16_t avgPower = (int16_t)_readRegister(KT_MAX1726X_REGISTER_POWER_AVG);
+  return avgPower * (0.00f / _rSense);
+}
+
+bool KT_MAX1726X::setEmptyVoltage(uint16_t mV){
+    return _updateReg(mV / 10.0f, KT_MAX1726X_REGISTER_VEMPTY, KT_MAX1726X_VEMPTY_EMPTY_MASK, 7);
+}
+
+bool KT_MAX1726X::setRecoveryVoltage(uint16_t mV){
+    return _updateReg(mV / 40.0f, KT_MAX1726X_REGISTER_VEMPTY, KT_MAX1726X_VEMPTY_RECOVERY_MASK, 0);
 }
