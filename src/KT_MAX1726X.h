@@ -15,6 +15,7 @@
 #define KT_MAX1726X_ADDR 0x6C
 
 #define KT_MAX1726X_REGISTER_STATUS 0x00
+#define KT_MAX1726X_REGISTER_CONFIG 0x1D
 #define KT_MAX1726X_REGISTER_DESIGN_CAP 0x18
 #define KT_MAX1726X_REGISTER_ICHG_TERM 0x1E
 #define KT_MAX1726X_REGISTER_FSTAT 0x3D
@@ -25,10 +26,20 @@
 #define KT_MAX1726X_REGISTER_CURRENT 0x0A
 #define KT_MAX1726X_REGISTER_CURRENT_AVG 0x0B
 #define KT_MAX1726X_REGISTER_CURRENT_MIN_MAX 0x1C
+#define KT_MAX1726X_REGISTER_TEMP 0x08
+#define KT_MAX1726X_REGISTER_TEMP_AVG 0x16
+#define KT_MAX1726X_REGISTER_TEMP_MIN_MAX 0x1A
+#define KT_MAX1726X_REGISTER_TEMP_DIE 0x34
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
 #define KT_MAX1726X_REFRESH_MASK 0x8000
+#define KT_MAX1726X_TSEL_MASK 0x8000
+
+enum kt_max1726x_temp_mode {
+    KT_MAX1726X_TEMP_MODE_DIE = 0,
+    KT_MAX1726X_TEMP_MODE_NTC = 1
+};
 
 class KT_MAX1726X
 {
@@ -48,6 +59,13 @@ class KT_MAX1726X
     float getMinCurrent();
     float getMaxCurrent();
     bool resetMinMaxCurrent();
+    bool setTemperatureMeasurementMode(kt_max1726x_temp_mode mode);
+    float getTemp();
+    float getAverageTemp();
+    float getMinTemp();
+    float getMaxTemp();
+    float getDieTemp();
+    bool resetMinMaxTemp();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }

@@ -145,3 +145,34 @@ float KT_MAX1726X::getMaxCurrent(){
 bool KT_MAX1726X::resetMinMaxCurrent() {
     return _writeRegister(KT_MAX1726X_REGISTER_CURRENT_MIN_MAX, 0x807F);
 }
+
+bool KT_MAX1726X::setTemperatureMeasurementMode(kt_max1726x_temp_mode mode){
+    return _updateReg(mode, KT_MAX1726X_REGISTER_CONFIG, KT_MAX1726X_TSEL_MASK, 15);
+}
+
+float KT_MAX1726X::getTemp(){
+  int16_t temp = (int16_t)_readRegister(KT_MAX1726X_REGISTER_TEMP);
+  return temp / 256.0f;
+}
+
+float KT_MAX1726X::getAverageTemp(){
+  int16_t avgTemp = (int16_t)_readRegister(KT_MAX1726X_REGISTER_TEMP_AVG);
+  return avgTemp / 256.0f;
+}
+
+float KT_MAX1726X::getMinTemp(){
+    return (int8_t)_readReg(KT_MAX1726X_REGISTER_TEMP_MIN_MAX, 0x00FF, 0);
+}
+
+float KT_MAX1726X::getMaxTemp(){
+    return (int8_t)_readReg(KT_MAX1726X_REGISTER_TEMP_MIN_MAX, 0xFF00, 0);
+}
+
+bool KT_MAX1726X::resetMinMaxTemp() {
+    return _writeRegister(KT_MAX1726X_REGISTER_TEMP_MIN_MAX, 0x807F);
+}
+
+float KT_MAX1726X::getDieTemp(){
+  int16_t dieTemp = (int16_t)_readRegister(KT_MAX1726X_REGISTER_TEMP_DIE);
+  return dieTemp / 256.0f;
+}
