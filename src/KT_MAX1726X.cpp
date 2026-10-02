@@ -240,3 +240,132 @@ bool KT_MAX1726X::setEmptyVoltage(uint16_t mV){
 bool KT_MAX1726X::setRecoveryVoltage(uint16_t mV){
     return _updateReg(mV / 40.0f, KT_MAX1726X_REGISTER_VEMPTY, KT_MAX1726X_VEMPTY_RECOVERY_MASK, 0);
 }
+
+bool KT_MAX1726X::isBatteryPresent(){
+    return !_readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_PRESENT_MASK, 3);
+}
+
+bool KT_MAX1726X::isBatteryInsert(){
+    bool insert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_INSERT_MASK, 11);
+    if(insert) {
+        _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_INSERT_MASK, 11);
+    }
+    return insert;
+}
+
+bool KT_MAX1726X::isBatteryRemoval(){
+    bool removal = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_REMOVAL_MASK, 15);
+    if(removal){
+      _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_REMOVAL_MASK, 15);  
+    }
+    return removal;
+}
+
+bool KT_MAX1726X::isChangeAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_CHANGE_ALERT_MASK, 7);
+    if(alert){
+        _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_CHANGE_ALERT_MASK, 7); 
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::setStickyAlert(bool enable){
+    uint16_t val = enable ? 0b1111 : 0b0000;
+    return _updateReg(val, KT_MAX1726X_REGISTER_CONFIG, KT_MAX1726X_STICKY_ALERT_MASK, 11);
+}
+
+bool KT_MAX1726X::_isSticky(){
+    return _readReg(KT_MAX1726X_REGISTER_CONFIG, KT_MAX1726X_STICKY_ALERT_MASK, 11) == 0b1111;
+}
+
+bool KT_MAX1726X::isMinCurrentAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MIN_CURRENT_ALRT_MASK, 2);
+    if(alert){
+        if(_isSticky()){
+            _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MIN_CURRENT_ALRT_MASK, 2); 
+        }
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::isMaxCurrentAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MAX_CURRENT_ALRT_MASK, 6);
+    if(alert){
+        if(_isSticky()){
+            _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MAX_CURRENT_ALRT_MASK, 6); 
+        }
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::isMinVoltageAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MIN_VOLTAGE_ALRT_MASK, 8);
+    if(alert){
+        if(_isSticky()){
+            _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MIN_VOLTAGE_ALRT_MASK, 8); 
+        }
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::isMaxVoltageAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MAX_VOLTAGE_ALRT_MASK, 12);
+    if(alert){
+        if(_isSticky()){
+            _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MAX_VOLTAGE_ALRT_MASK, 12); 
+        }
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::isMinTemperatureAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MIN_TEMP_ALRT_MASK, 9);
+    if(alert){
+        if(_isSticky()){
+            _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MIN_TEMP_ALRT_MASK, 9); 
+        }
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::isMaxTemperatureAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MAX_TEMP_ALRT_MASK, 13);
+    if(alert){
+        if(_isSticky()){
+            _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MAX_TEMP_ALRT_MASK, 13); 
+        }
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::isMinPercentageAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MIN_SOC_ALRT_MASK, 10);
+    if(alert){
+        if(_isSticky()){
+            _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MIN_SOC_ALRT_MASK, 10); 
+        }
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::isMaxPercentageAlert(){
+    bool alert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MAX_SOC_ALRT_MASK, 14);
+    if(alert){
+        if(_isSticky()){
+            _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_MAX_SOC_ALRT_MASK, 14); 
+        }
+    }
+    return alert;
+}
+
+bool KT_MAX1726X::setMinVoltageAlert(uint16_t voltage_mV){
+    if(voltage_mV > 5100) voltage_mV = 5100;
+
+    return _updateReg(voltage_mV, KT_MAX1726X_REGISTER_VOLTAGE_ALERT, 0xFF, 0);
+}
+
+bool KT_MAX1726X::setMaxVoltageAlert(uint16_t voltage_mV){
+    if(voltage_mV > 5100) voltage_mV = 5100;
+
+    return _updateReg(voltage_mV, KT_MAX1726X_REGISTER_VOLTAGE_ALERT, 0xFF00, 8);
+}

@@ -40,6 +40,7 @@
 #define KT_MAX1726X_REGISTER_POWER 0xB1
 #define KT_MAX1726X_REGISTER_POWER_AVG 0xB3
 #define KT_MAX1726X_REGISTER_VEMPTY 0x3A
+#define KT_MAX1726X_REGISTER_VOLTAGE_ALERT 0x01
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -48,6 +49,19 @@
 #define KT_MAX1726X_ETHRM_MASK 0x10
 #define KT_MAX1726X_VEMPTY_EMPTY_MASK 0xFF80
 #define KT_MAX1726X_VEMPTY_RECOVERY_MASK 0x7F
+#define KT_MAX1726X_BATTERY_PRESENT_MASK 0x08
+#define KT_MAX1726X_BATTERY_INSERT_MASK 0x800
+#define KT_MAX1726X_BATTERY_REMOVAL_MASK 0x8000
+#define KT_MAX1726X_CHANGE_ALERT_MASK 0x80
+#define KT_MAX1726X_STICKY_ALERT_MASK 0x7800
+#define KT_MAX1726X_MIN_CURRENT_ALRT_MASK 0x04
+#define KT_MAX1726X_MAX_CURRENT_ALRT_MASK 0x40
+#define KT_MAX1726X_MIN_VOLTAGE_ALRT_MASK 0x80
+#define KT_MAX1726X_MAX_VOLTAGE_ALRT_MASK 0x1000
+#define KT_MAX1726X_MIN_TEMP_ALRT_MASK 0x200
+#define KT_MAX1726X_MAX_TEMP_ALRT_MASK 0x2000
+#define KT_MAX1726X_MIN_SOC_ALRT_MASK 0x400
+#define KT_MAX1726X_MAX_SOC_ALRT_MASK 0x4000
 
 enum kt_max1726x_temp_mode {
     KT_MAX1726X_TEMP_MODE_DIE = 0,
@@ -90,6 +104,21 @@ class KT_MAX1726X
     float getAveragePower();
     bool setEmptyVoltage(uint16_t mV);
     bool setRecoveryVoltage(uint16_t mV);
+    bool isBatteryPresent();
+    bool isBatteryInsert();
+    bool isBatteryRemoval();
+    bool isChangeAlert();
+    bool setStickyAlert(bool enable = true);
+    bool isMinCurrentAlert();
+    bool isMaxCurrentAlert();
+    bool isMinVoltageAlert();
+    bool isMaxVoltageAlert();
+    bool isMinTemperatureAlert();
+    bool isMaxTemperatureAlert();
+    bool isMinPercentageAlert();
+    bool isMaxPercentageAlert();
+    bool setMinVoltageAlert(uint16_t voltage_mV);
+    bool setMaxVoltageAlert(uint16_t voltage_mV);
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
@@ -100,6 +129,7 @@ class KT_MAX1726X
     bool _writeRegister(uint8_t reg, uint16_t value);
     bool _updateReg(uint16_t value, uint8_t reg, uint16_t mask, int offset);
     uint16_t _readReg(uint8_t reg, uint16_t mask, int offset);
+    bool _isSticky();
 
     TwoWire* _wire;
     Stream *_debugPort; 
