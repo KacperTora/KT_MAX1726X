@@ -230,7 +230,7 @@ float KT_MAX1726X::getPower(){
 
 float KT_MAX1726X::getAveragePower(){
   int16_t avgPower = (int16_t)_readRegister(KT_MAX1726X_REGISTER_POWER_AVG);
-  return avgPower * (0.00f / _rSense);
+  return avgPower * (0.008f / _rSense);
 }
 
 bool KT_MAX1726X::setEmptyVoltage(uint16_t mV){
@@ -357,15 +357,66 @@ bool KT_MAX1726X::isMaxPercentageAlert(){
     }
     return alert;
 }
-
 bool KT_MAX1726X::setMinVoltageAlert(uint16_t voltage_mV){
     if(voltage_mV > 5100) voltage_mV = 5100;
-
-    return _updateReg(voltage_mV, KT_MAX1726X_REGISTER_VOLTAGE_ALERT, 0xFF, 0);
+    return _updateReg(voltage_mV / 20, KT_MAX1726X_REGISTER_VOLTAGE_ALERT, 0x00FF, 0);
 }
 
 bool KT_MAX1726X::setMaxVoltageAlert(uint16_t voltage_mV){
     if(voltage_mV > 5100) voltage_mV = 5100;
+    return _updateReg(voltage_mV / 20, KT_MAX1726X_REGISTER_VOLTAGE_ALERT, 0xFF00, 8);
+}
 
-    return _updateReg(voltage_mV, KT_MAX1726X_REGISTER_VOLTAGE_ALERT, 0xFF00, 8);
+bool KT_MAX1726X::setMinTemperatureAlert(int16_t temp_C) {
+    if (temp_C > 127)  temp_C = 127;
+    if (temp_C < -128) temp_C = -128;
+
+    return _updateReg((uint8_t)(int8_t)temp_C, KT_MAX1726X_REGISTER_TEMP_ALERT, 0x00FF, 0);
+}
+
+bool KT_MAX1726X::setMaxTemperatureAlert(int16_t temp_C) {
+    if (temp_C > 127)  temp_C = 127;
+    if (temp_C < -128) temp_C = -128;
+
+    return _updateReg((uint8_t)(int8_t)temp_C, KT_MAX1726X_REGISTER_TEMP_ALERT, 0xFF00, 8);
+}
+
+bool KT_MAX1726X::setMinPercentageAlert(uint16_t percentage){
+    if(percentage > 100) percentage = 100;
+
+    return _updateReg(percentage, KT_MAX1726X_REGISTER_SOC_ALERT, 0xFF, 0);
+}
+
+bool KT_MAX1726X::setMaxPercentageAlert(uint16_t percentage){
+    if(percentage > 100) percentage = 100;
+
+    return _updateReg(percentage, KT_MAX1726X_REGISTER_SOC_ALERT, 0xFF00, 8);
+}
+
+bool KT_MAX1726X::setMinCurrentAlert(int32_t current_mA) {
+    int16_t raw = (current_mA * _rSense) / 0.4f;
+    if (raw > 127)  raw = 127;
+    if (raw < -128) raw = -128;
+
+    return _updateReg((uint8_t)(int8_t)raw, KT_MAX1726X_REGISTER_CURRENT_ALERT, 0x00FF, 0);
+}
+
+bool KT_MAX1726X::setMaxCurrentAlert(int32_t current_mA) {
+    int16_t raw = (current_mA * _rSense) / 0.4f;
+    if (raw > 127)  raw = 127;
+    if (raw < -128) raw = -128;
+
+    return _updateReg((uint8_t)(int8_t)raw, KT_MAX1726X_REGISTER_CURRENT_ALERT, 0xFF00, 8);
+}
+
+bool KT_MAX1726X::enableAlert(bool enable){
+    return _updateReg(enable, KT_MAX1726X_REGISTER_CONFIG, KT_MAX1726X_ALERT_MASK, 2);
+}
+
+bool KT_MAX1726X::enablePercentageAlert(bool enable){
+    return _updateReg(enable, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_SOC_ALERT_MASK, 7);
+}
+
+bool KT_MAX1726X::enableTemperatureAlert(bool enable){
+    return _updateReg(enable, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_TEMP_ALERT_MASK, 6);
 }

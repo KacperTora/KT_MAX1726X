@@ -16,6 +16,7 @@
 
 #define KT_MAX1726X_REGISTER_STATUS 0x00
 #define KT_MAX1726X_REGISTER_CONFIG 0x1D
+#define KT_MAX1726X_REGISTER_CONFIG2 0xBB
 #define KT_MAX1726X_REGISTER_DESIGN_CAP 0x18
 #define KT_MAX1726X_REGISTER_ICHG_TERM 0x1E
 #define KT_MAX1726X_REGISTER_FSTAT 0x3D
@@ -41,6 +42,10 @@
 #define KT_MAX1726X_REGISTER_POWER_AVG 0xB3
 #define KT_MAX1726X_REGISTER_VEMPTY 0x3A
 #define KT_MAX1726X_REGISTER_VOLTAGE_ALERT 0x01
+#define KT_MAX1726X_REGISTER_TEMP_ALERT 0x02
+#define KT_MAX1726X_REGISTER_SOC_ALERT 0x03
+#define KT_MAX1726X_REGISTER_CURRENT_ALERT 0xB4
+#define KT_MAX1726X_REGISTER_AGE 0x07
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -56,12 +61,15 @@
 #define KT_MAX1726X_STICKY_ALERT_MASK 0x7800
 #define KT_MAX1726X_MIN_CURRENT_ALRT_MASK 0x04
 #define KT_MAX1726X_MAX_CURRENT_ALRT_MASK 0x40
-#define KT_MAX1726X_MIN_VOLTAGE_ALRT_MASK 0x80
+#define KT_MAX1726X_MIN_VOLTAGE_ALRT_MASK 0x100
 #define KT_MAX1726X_MAX_VOLTAGE_ALRT_MASK 0x1000
 #define KT_MAX1726X_MIN_TEMP_ALRT_MASK 0x200
 #define KT_MAX1726X_MAX_TEMP_ALRT_MASK 0x2000
 #define KT_MAX1726X_MIN_SOC_ALRT_MASK 0x400
 #define KT_MAX1726X_MAX_SOC_ALRT_MASK 0x4000
+#define KT_MAX1726X_ALERT_MASK 0x04
+#define KT_MAX1726X_TEMP_ALERT_MASK 0x40
+#define KT_MAX1726X_SOC_ALERT_MASK 0x80
 
 enum kt_max1726x_temp_mode {
     KT_MAX1726X_TEMP_MODE_DIE = 0,
@@ -119,6 +127,16 @@ class KT_MAX1726X
     bool isMaxPercentageAlert();
     bool setMinVoltageAlert(uint16_t voltage_mV);
     bool setMaxVoltageAlert(uint16_t voltage_mV);
+    bool setMinTemperatureAlert(int16_t temp_C);
+    bool setMaxTemperatureAlert(int16_t temp_C);
+    bool setMinPercentageAlert(uint16_t percentage);
+    bool setMaxPercentageAlert(uint16_t percentage);
+    bool setMinCurrentAlert(int32_t current_mA);
+    bool setMaxCurrentAlert(int32_t current_mA);
+    bool enableAlert(bool enable);
+    bool enablePercentageAlert(bool enable);
+    bool enableTemperatureAlert(bool enable);
+    float getAge();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
