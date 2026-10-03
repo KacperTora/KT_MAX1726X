@@ -15,9 +15,9 @@
 #define KT_MAX1726X_ADDR 0x6C
 
 #define KT_MAX1726X_REGISTER_STATUS 0x00
+#define KT_MAX1726X_REGISTER_STATUS2 0xB0
 #define KT_MAX1726X_REGISTER_CONFIG 0x1D
 #define KT_MAX1726X_REGISTER_CONFIG2 0xBB
-#define KT_MAX1726X_REGISTER_DESIGN_CAP 0x18
 #define KT_MAX1726X_REGISTER_ICHG_TERM 0x1E
 #define KT_MAX1726X_REGISTER_FSTAT 0x3D
 #define KT_MAX1726X_REGISTER_MODEL_CFG 0xDB
@@ -46,6 +46,17 @@
 #define KT_MAX1726X_REGISTER_SOC_ALERT 0x03
 #define KT_MAX1726X_REGISTER_CURRENT_ALERT 0xB4
 #define KT_MAX1726X_REGISTER_AGE 0x07
+#define KT_MAX1726X_REGISTER_RESISTANCE 0x14
+#define KT_MAX1726X_REGISTER_RIPPLE 0xBC
+#define KT_MAX1726X_REGISTER_DEV_NAME 0x21
+#define KT_MAX1726X_REGISTER_MAX_PEAK_POWER 0xD4
+#define KT_MAX1726X_REGISTER_SUS_PEAK_POWER 0xD5
+#define KT_MAX1726X_REGISTER_MPP_CURRENT 0xD9
+#define KT_MAX1726X_REGISTER_SPP_CURRENT 0xDA
+#define KT_MAX1726X_REGISTER_AT_Q_RESIDUAL 0xDC
+#define KT_MAX1726X_REGISTER_AT_TTE 0xDD
+#define KT_MAX1726X_REGISTER_AT_AV_SOC 0xDE
+#define KT_MAX1726X_REGISTER_AT_AV_CAP 0xDF
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -70,6 +81,9 @@
 #define KT_MAX1726X_ALERT_MASK 0x04
 #define KT_MAX1726X_TEMP_ALERT_MASK 0x40
 #define KT_MAX1726X_SOC_ALERT_MASK 0x80
+#define KT_MAX1726X_ATRATEEN_MASK 0x2000
+#define KT_MAX1726X_DPEN_MASK 0x1000
+#define KT_MAX1726X_SNREADY_MASK 0x100
 
 enum kt_max1726x_temp_mode {
     KT_MAX1726X_TEMP_MODE_DIE = 0,
@@ -137,6 +151,10 @@ class KT_MAX1726X
     bool enablePercentageAlert(bool enable);
     bool enableTemperatureAlert(bool enable);
     float getAge();
+    float getResistance();
+    float getRippleVoltage();
+    uint16_t getDevName();
+    bool getSerialNumber(uint16_t number[8]);
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }

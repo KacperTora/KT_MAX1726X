@@ -87,7 +87,7 @@ bool KT_MAX1726X::begin(uint16_t designCap_mAh, float rSense, uint16_t iChgTerm_
         delay(1);
     }
 
-    _writeRegister(KT_MAX1726X_REGISTER_DESIGN_CAP, (uint16_t)(designCap_mAh * rSense * 200.0f));
+    _writeRegister(KT_MAX1726X_REGISTER_CAPACITY_DESIGN, (uint16_t)(designCap_mAh * rSense * 200.0f));
     _writeRegister(KT_MAX1726X_REGISTER_ICHG_TERM, (uint16_t)(iChgTerm_mA * rSense * 640));
 
     _updateReg(1, KT_MAX1726X_REGISTER_MODEL_CFG, KT_MAX1726X_REFRESH_MASK, 15);
@@ -419,4 +419,51 @@ bool KT_MAX1726X::enablePercentageAlert(bool enable){
 
 bool KT_MAX1726X::enableTemperatureAlert(bool enable){
     return _updateReg(enable, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_TEMP_ALERT_MASK, 6);
+}
+
+float KT_MAX1726X::getAge(){
+    return (_readRegister(KT_MAX1726X_REGISTER_AGE) / 256.0f);
+}
+
+float KT_MAX1726X::getResistance(){
+    return (_readRegister(KT_MAX1726X_REGISTER_RESISTANCE) * 1000.0f / 4096.0f);
+}
+
+float KT_MAX1726X::getRippleVoltage(){
+    return (_readRegister(KT_MAX1726X_REGISTER_RIPPLE) * 0.009765625f);
+}
+
+uint16_t KT_MAX1726X::getDevName(){
+    return _readRegister(KT_MAX1726X_REGISTER_DEV_NAME);
+}
+
+bool KT_MAX1726X::getSerialNumber(uint16_t number[8]){
+    if (number == nullptr) return false;
+
+    _updateReg(0, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_ATRATEEN_MASK, 13);
+    _updateReg(0, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_DPEN_MASK, 12);
+
+    uint32_t timeout = millis() + 15;
+    while(_readReg(KT_MAX1726X_REGISTER_STATUS2, KT_MAX1726X_SNREADY_MASK, 8) == 0){
+        if (millis() > timeout) {
+            if (_debugPort != nullptr) _debugPort->println("Timeout SN_READY.");
+            _updateReg(1, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_ATRATEEN_MASK, 13);
+            _updateReg(1, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_DPEN_MASK, 12);
+            return false;
+        }
+        delay(1);
+    }
+
+    uint8_t regs[8] = {KT_MAX1726X_REGISTER_MAX_PEAK_POWER, KT_MAX1726X_REGISTER_SUS_PEAK_POWER, KT_MAX1726X_REGISTER_MPP_CURRENT,
+    KT_MAX1726X_REGISTER_SPP_CURRENT, KT_MAX1726X_REGISTER_AT_Q_RESIDUAL, KT_MAX1726X_REGISTER_AT_TTE, KT_MAX1726X_REGISTER_AT_AV_SOC,
+    KT_MAX1726X_REGISTER_AT_AV_CAP};
+
+    for(int i = 0; i < 8; i++){
+        number[i] = _readRegister(regs[i]);
+    }
+
+    _updateReg(1, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_ATRATEEN_MASK, 13);
+    _updateReg(1, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_DPEN_MASK, 12);
+
+    return true;
 }
