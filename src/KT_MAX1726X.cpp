@@ -72,13 +72,19 @@ bool KT_MAX1726X::begin(uint16_t designCap_mAh, float rSense, uint16_t iChgTerm_
     return false;
   }
 
-  _rSense = rSense;
+  if(getDevName() == 0x4039){
+    _rSense - 0.010f;
+  } else if(getDevName() == 0x4031){
+    _rSense = rSense;
+  } else{
+    _debugPort->println("Device name does not match the MAX17260 or MAX17262!");
+  }
 
   uint16_t por = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_POR_MASK, 1);
 
   if(por == 1){
 
-    uint32_t timeout = millis() + 250;
+    uint32_t timeout = millis() + 1000;
     while(_readReg(KT_MAX1726X_REGISTER_FSTAT, KT_MAX1726X_DNR_MASK, 0) == 1){
         if (millis() > timeout) {
             if (_debugPort != nullptr) _debugPort->println("Timeout DNR.");
@@ -104,6 +110,8 @@ bool KT_MAX1726X::begin(uint16_t designCap_mAh, float rSense, uint16_t iChgTerm_
     _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_POR_MASK, 1);
     
   }
+
+  setStickyAlert(true);
 
   return true;
 }
@@ -245,7 +253,7 @@ bool KT_MAX1726X::isBatteryPresent(){
     return !_readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_PRESENT_MASK, 3);
 }
 
-bool KT_MAX1726X::isBatteryInsert(){
+bool KT_MAX1726X::isBatteryInserted(){
     bool insert = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_INSERT_MASK, 11);
     if(insert) {
         _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_INSERT_MASK, 11);
@@ -253,7 +261,7 @@ bool KT_MAX1726X::isBatteryInsert(){
     return insert;
 }
 
-bool KT_MAX1726X::isBatteryRemoval(){
+bool KT_MAX1726X::isBatteryRemoved(){
     bool removal = _readReg(KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_REMOVAL_MASK, 15);
     if(removal){
       _updateReg(0, KT_MAX1726X_REGISTER_STATUS, KT_MAX1726X_BATTERY_REMOVAL_MASK, 15);  
@@ -466,4 +474,49 @@ bool KT_MAX1726X::getSerialNumber(uint16_t number[8]){
     _updateReg(1, KT_MAX1726X_REGISTER_CONFIG2, KT_MAX1726X_DPEN_MASK, 12);
 
     return true;
+}
+
+float KT_MAX1726X::getMaxPeakPower(){
+    return (int16_t)_readRegister(KT_MAX1726X_REGISTER_MAX_PEAK_POWER) * 0.8f;
+}
+
+float KT_MAX1726X::getSusPeakPower(){
+    return (int16_t)_readRegister(KT_MAX1726X_REGISTER_SUS_PEAK_POWER) * 0.8f;
+}
+
+float KT_MAX1726X::getMPPCurrent(){
+    return (int16_t)(_readRegister(KT_MAX1726X_REGISTER_MPP_CURRENT));
+}
+
+float KT_MAX1726X::getSPPCurrent(){
+    return (int16_t)(_readRegister(KT_MAX1726X_REGISTER_SPP_CURRENT));
+}
+
+float KT_MAX1726X::getPackResistance(){
+    return (_readRegister(KT_MAX1726X_REGISTER_PACK_RESISTANCE) * 0.244140625);
+}
+
+bool KT_MAX1726X::setAtRate(int32_t current_mA){
+    if (current_mA > 0) current_mA = -current_mA;
+
+    int32_t raw = (int32_t)(current_mA * _rSense * 640.0f);
+    if (raw > 32767)  raw = 32767;
+    if (raw < -32768) raw = -32768;
+
+    return _writeRegister(KT_MAX1726X_REGISTER_AT_RATE, (uint16_t)(int16_t)raw);
+}
+
+float KT_MAX1726X::getAtTimeToEmpty(){
+  uint16_t atTte = _readRegister(KT_MAX1726X_REGISTER_AT_TTE);
+  return atTte * 5.625f;
+}
+
+float KT_MAX1726X::getAtAvPercentage(){
+  uint16_t perc = _readRegister(KT_MAX1726X_REGISTER_AT_AV_SOC);
+  return perc / 256.0f;
+}
+
+float KT_MAX1726X::getAtAvCapacity(){
+  uint16_t perc = _readRegister(KT_MAX1726X_REGISTER_AT_AV_CAP);
+  return perc * 0.005f / _rSense;
 }

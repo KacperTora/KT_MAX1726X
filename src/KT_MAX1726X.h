@@ -12,7 +12,7 @@
 #include "Arduino.h"
 #include "Wire.h"
 
-#define KT_MAX1726X_ADDR 0x6C
+#define KT_MAX1726X_ADDR 0x36
 
 #define KT_MAX1726X_REGISTER_STATUS 0x00
 #define KT_MAX1726X_REGISTER_STATUS2 0xB0
@@ -57,6 +57,8 @@
 #define KT_MAX1726X_REGISTER_AT_TTE 0xDD
 #define KT_MAX1726X_REGISTER_AT_AV_SOC 0xDE
 #define KT_MAX1726X_REGISTER_AT_AV_CAP 0xDF
+#define KT_MAX1726X_REGISTER_PACK_RESISTANCE 0xD6
+#define KT_MAX1726X_REGISTER_AT_RATE 0x04
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -127,8 +129,8 @@ class KT_MAX1726X
     bool setEmptyVoltage(uint16_t mV);
     bool setRecoveryVoltage(uint16_t mV);
     bool isBatteryPresent();
-    bool isBatteryInsert();
-    bool isBatteryRemoval();
+    bool isBatteryInserted();
+    bool isBatteryRemoved();
     bool isChangeAlert();
     bool setStickyAlert(bool enable = true);
     bool isMinCurrentAlert();
@@ -155,6 +157,15 @@ class KT_MAX1726X
     float getRippleVoltage();
     uint16_t getDevName();
     bool getSerialNumber(uint16_t number[8]);
+    float getMaxPeakPower();
+    float getSusPeakPower();
+    float getPackResistance();
+    float getMPPCurrent();
+    float getSPPCurrent();
+    bool setAtRate(int32_t current_mA);
+    float getAtTimeToEmpty();
+    float getAtAvPercentage();
+    float getAtAvCapacity();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
