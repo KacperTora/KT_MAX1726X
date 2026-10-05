@@ -73,7 +73,7 @@ bool KT_MAX1726X::begin(uint16_t designCap_mAh, float rSense, uint16_t iChgTerm_
   }
 
   if(getDevName() == 0x4039){
-    _rSense - 0.010f;
+    _rSense = 0.010f;
   } else if(getDevName() == 0x4031){
     _rSense = rSense;
   } else{
@@ -492,8 +492,30 @@ float KT_MAX1726X::getSPPCurrent(){
     return (int16_t)(_readRegister(KT_MAX1726X_REGISTER_SPP_CURRENT));
 }
 
+bool KT_MAX1726X::setPackResistance(uint16_t resistance_mOhm){
+    uint16_t raw = (uint16_t)(resistance_mOhm * 4.096f);
+    return _writeRegister(KT_MAX1726X_REGISTER_PACK_RESISTANCE, raw);
+}
+
 float KT_MAX1726X::getPackResistance(){
-    return (_readRegister(KT_MAX1726X_REGISTER_PACK_RESISTANCE) * 0.244140625);
+    return (_readRegister(KT_MAX1726X_REGISTER_PACK_RESISTANCE) * (1 / 4.096f));
+}
+
+bool KT_MAX1726X::setSysResistance(uint16_t resistance_mOhm){
+    uint16_t raw = (uint16_t)(resistance_mOhm * 4.096f);
+    return _writeRegister(KT_MAX1726X_REGISTER_SYS_RESISTANCE, raw);
+}
+
+float KT_MAX1726X::getSysResistance(){
+    return (_readRegister(KT_MAX1726X_REGISTER_SYS_RESISTANCE) * (1 / 4.096f));
+}
+
+bool KT_MAX1726X::setMinSysVoltage(uint16_t voltage_mV){
+    return _writeRegister(0xD8, (uint16_t)(voltage_mV / 0.078125f));
+}
+
+float KT_MAX1726X::getMinSysVoltage(){
+    return _readRegister(0xD8) * 0.078125f;
 }
 
 bool KT_MAX1726X::setAtRate(int32_t current_mA){
@@ -517,6 +539,26 @@ float KT_MAX1726X::getAtAvPercentage(){
 }
 
 float KT_MAX1726X::getAtAvCapacity(){
-  uint16_t perc = _readRegister(KT_MAX1726X_REGISTER_AT_AV_CAP);
-  return perc * 0.005f / _rSense;
+  uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_AT_AV_CAP);
+  return capacity * (0.005f / _rSense);
+}
+
+float KT_MAX1726X::getAtQResidual(){
+  uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_AT_Q_RESIDUAL);
+  return capacity * (0.005f / _rSense);
+}
+
+float KT_MAX1726X::getVFPercentage(){
+  uint16_t perc = _readRegister(KT_MAX1726X_REGISTER_VFSOC);
+  return perc / 256.0f;
+}
+
+float KT_MAX1726X::getVFVoltage(){
+  uint16_t vcell = _readRegister(KT_MAX1726X_REGISTER_VFOCV);
+  return vcell * 0.000078125f;
+}
+
+float KT_MAX1726X::getQHCapacity(){
+  uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_QH);
+  return capacity * (0.005f / _rSense);
 }

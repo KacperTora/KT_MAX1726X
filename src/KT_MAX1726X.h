@@ -59,6 +59,11 @@
 #define KT_MAX1726X_REGISTER_AT_AV_CAP 0xDF
 #define KT_MAX1726X_REGISTER_PACK_RESISTANCE 0xD6
 #define KT_MAX1726X_REGISTER_AT_RATE 0x04
+#define KT_MAX1726X_REGISTER_SYS_RESISTANCE 0xD7
+#define KT_MAX1726X_REGISTER_MIN_SYS_VOLTAGE 0xD8
+#define KT_MAX1726X_REGISTER_VFSOC 0xFF
+#define KT_MAX1726X_REGISTER_VFOCV 0xFB
+#define KT_MAX1726X_REGISTER_QH 0x4D
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -159,13 +164,22 @@ class KT_MAX1726X
     bool getSerialNumber(uint16_t number[8]);
     float getMaxPeakPower();
     float getSusPeakPower();
+    bool setPackResistance(uint16_t resistance_mOhm);
     float getPackResistance();
+    bool setSysResistance(uint16_t resistance_mOhm);
+    float getSysResistance();
+    bool setMinSysVoltage(uint16_t voltage_mV);
+    float getMinSysVoltage();
     float getMPPCurrent();
     float getSPPCurrent();
     bool setAtRate(int32_t current_mA);
     float getAtTimeToEmpty();
     float getAtAvPercentage();
     float getAtAvCapacity();
+    float getAtQResidual();
+    float getVFPercentage();
+    float getVFVoltage();
+    float getQHCapacity();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
