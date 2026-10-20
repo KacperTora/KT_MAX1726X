@@ -562,3 +562,28 @@ float KT_MAX1726X::getQHCapacity(){
   uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_QH);
   return capacity * (0.005f / _rSense);
 }
+
+float KT_MAX1726X::getAvCapacity(){
+  uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_AV_CAP);
+  return capacity * (0.005f / _rSense);
+}
+
+float KT_MAX1726X::getAvPercentage(){
+  uint16_t perc = _readRegister(KT_MAX1726X_REGISTER_AV_SOC);
+  return perc / 256.0f;
+}
+
+float KT_MAX1726X::getMixCapacity(){
+  uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_MIX_CAP);
+  return capacity * (0.005f / _rSense);
+}
+
+float KT_MAX1726X::getMixPercentage(){
+  uint16_t perc = _readRegister(KT_MAX1726X_REGISTER_MIX_SOC);
+  return perc / 256.0f;
+}
+
+float KT_MAX1726X::getQResidual(){
+  uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_Q_RESIDUAL);
+  return capacity * (0.005f / _rSense);
+}

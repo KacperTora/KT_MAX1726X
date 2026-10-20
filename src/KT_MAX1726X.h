@@ -64,6 +64,11 @@
 #define KT_MAX1726X_REGISTER_VFSOC 0xFF
 #define KT_MAX1726X_REGISTER_VFOCV 0xFB
 #define KT_MAX1726X_REGISTER_QH 0x4D
+#define KT_MAX1726X_REGISTER_AV_CAP 0x1F
+#define KT_MAX1726X_REGISTER_AV_SOC 0x0E
+#define KT_MAX1726X_REGISTER_MIX_CAP 0x0F
+#define KT_MAX1726X_REGISTER_MIX_SOC 0x0D
+#define KT_MAX1726X_REGISTER_Q_RESIDUAL 0x0C
 
 #define KT_MAX1726X_POR_MASK 0x02
 #define KT_MAX1726X_DNR_MASK 0x01
@@ -180,6 +185,11 @@ class KT_MAX1726X
     float getVFPercentage();
     float getVFVoltage();
     float getQHCapacity();
+    float getAvCapacity();
+    float getAvPercentage();
+    float getMixCapacity();
+    float getMixPercentage();
+    float getQResidual();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
