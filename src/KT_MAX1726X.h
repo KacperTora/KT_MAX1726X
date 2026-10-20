@@ -100,6 +100,10 @@
 #define KT_MAX1726X_RELDT_MASK 0x200
 #define KT_MAX1726X_RELDT2_MASK 0x40
 #define KT_MAX1726X_FULL_QUALIFIED_MASK 0x80
+#define KT_MAX1726X_HIBERNATE_MASK 0x02
+#define KT_MAX1726X_FULLDET_MASK 0x10
+#define KT_MAX1726X_AT_RATE_READY_MASK 0x2000
+#define KT_MAX1726X_DP_READY_MASK 0x1000
 
 enum kt_max1726x_temp_mode {
     KT_MAX1726X_TEMP_MODE_DIE = 0,
@@ -198,6 +202,10 @@ class KT_MAX1726X
     bool isBatteryFullyRelaxed();
     bool isBatteryLongRelaxed();
     bool isChargeFullQualified();
+    bool isHibernate();
+    bool isFullDetected();
+    bool isAtRateReady();
+    bool isDynamicPowerReady();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }
@@ -213,4 +221,5 @@ class KT_MAX1726X
     TwoWire* _wire;
     Stream *_debugPort; 
     float _rSense;
+    bool _i2cError;
 };

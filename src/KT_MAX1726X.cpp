@@ -13,12 +13,17 @@ KT_MAX1726X::KT_MAX1726X(TwoWire *wire){
   _wire = wire;
   _debugPort = nullptr;
   _rSense = 0.010f;
+  _i2cError = false;
 }
 
 uint16_t KT_MAX1726X::_readRegister(uint8_t reg) {
+  _i2cError = false;
   _wire -> beginTransmission(KT_MAX1726X_ADDR);
   _wire -> write(reg);
-  _wire -> endTransmission(false);
+  if (_wire->endTransmission(false) != 0) {
+    _i2cError = true;
+    return 0x00;
+  }
 
   _wire -> requestFrom((uint8_t)KT_MAX1726X_ADDR, (uint8_t)2);
 
@@ -27,6 +32,7 @@ uint16_t KT_MAX1726X::_readRegister(uint8_t reg) {
     uint8_t msb = _wire -> read();
     return ((uint16_t)msb << 8) | lsb;
   }
+  _i2cError = true;
   return 0x00;
 }
 
@@ -46,6 +52,7 @@ bool KT_MAX1726X::_writeRegister(uint8_t reg, uint16_t value){
 
 bool KT_MAX1726X::_updateReg(uint16_t value, uint8_t reg, uint16_t mask, int offset){
   uint16_t regVal = _readRegister(reg);
+  if (_i2cError) return false;
   regVal &= ~mask;
   regVal |= ((value << offset) & mask);
   return _writeRegister(reg, regVal);
@@ -602,4 +609,20 @@ bool KT_MAX1726X::isBatteryLongRelaxed(){
 
 bool KT_MAX1726X::isChargeFullQualified(){
     return _readReg(KT_MAX1726X_REGISTER_FSTAT, KT_MAX1726X_FULL_QUALIFIED_MASK, 7);
+}
+
+bool KT_MAX1726X::isHibernate(){
+    return _readReg(KT_MAX1726X_REGISTER_STATUS2, KT_MAX1726X_HIBERNATE_MASK, 1);
+}
+
+bool KT_MAX1726X::isFullDetected(){
+    return _readReg(KT_MAX1726X_REGISTER_STATUS2, KT_MAX1726X_FULLDET_MASK, 5);
+}
+
+bool KT_MAX1726X::isAtRateReady(){
+    return _readReg(KT_MAX1726X_REGISTER_STATUS2, KT_MAX1726X_AT_RATE_READY_MASK, 13);
+}
+
+bool KT_MAX1726X::isDynamicPowerReady(){
+    return _readReg(KT_MAX1726X_REGISTER_STATUS2, KT_MAX1726X_DP_READY_MASK, 12);
 }
