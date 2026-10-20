@@ -96,6 +96,10 @@
 #define KT_MAX1726X_ATRATEEN_MASK 0x2000
 #define KT_MAX1726X_DPEN_MASK 0x1000
 #define KT_MAX1726X_SNREADY_MASK 0x100
+#define KT_MAX1726X_EDET_MASK 0x100
+#define KT_MAX1726X_RELDT_MASK 0x200
+#define KT_MAX1726X_RELDT2_MASK 0x40
+#define KT_MAX1726X_FULL_QUALIFIED_MASK 0x80
 
 enum kt_max1726x_temp_mode {
     KT_MAX1726X_TEMP_MODE_DIE = 0,
@@ -190,6 +194,10 @@ class KT_MAX1726X
     float getMixCapacity();
     float getMixPercentage();
     float getQResidual();
+    bool isBatteryEmpty();
+    bool isBatteryFullyRelaxed();
+    bool isBatteryLongRelaxed();
+    bool isChargeFullQualified();
 
     void setDebugPort(Stream &debugPort) { _debugPort = &debugPort; }
     void disableDebug() { _debugPort = nullptr; }

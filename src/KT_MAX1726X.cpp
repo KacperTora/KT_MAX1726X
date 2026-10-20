@@ -587,3 +587,19 @@ float KT_MAX1726X::getQResidual(){
   uint16_t capacity = _readRegister(KT_MAX1726X_REGISTER_Q_RESIDUAL);
   return capacity * (0.005f / _rSense);
 }
+
+bool KT_MAX1726X::isBatteryEmpty(){
+    return _readReg(KT_MAX1726X_REGISTER_FSTAT, KT_MAX1726X_EDET_MASK, 8);
+}
+
+bool KT_MAX1726X::isBatteryFullyRelaxed(){
+    return _readReg(KT_MAX1726X_REGISTER_FSTAT, KT_MAX1726X_RELDT_MASK, 9);
+}
+
+bool KT_MAX1726X::isBatteryLongRelaxed(){
+    return _readReg(KT_MAX1726X_REGISTER_FSTAT, KT_MAX1726X_RELDT2_MASK, 6);
+}
+
+bool KT_MAX1726X::isChargeFullQualified(){
+    return _readReg(KT_MAX1726X_REGISTER_FSTAT, KT_MAX1726X_FULL_QUALIFIED_MASK, 7);
+}
